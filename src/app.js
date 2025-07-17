@@ -12,7 +12,6 @@ app.use(express.json());
 //routes
 app.use("/api", router);
 
-
 sequelize.sync({ alter: true })
     .then(() => console.log('✅ Tables synced'))
     .catch(err => console.error('❌ Sync failed:', err));
