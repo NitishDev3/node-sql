@@ -119,19 +119,29 @@ exports.createUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    const ALLOWED_FIELD = ['name', 'email', 'password', 'role'];
-    Object.keys(req.body).forEach((key)=>{
-        if(!ALLOWED_FIELD.includes(key)){
-            return res.status(400).json({
-                message: `You can't update ${key} field`,
-                });
-        }
-    })
-
+    const ALLOWED_FIELD = ["name", "email", "password", "role"];
+    Object.keys(req.body).forEach((key) => {
+      if (!ALLOWED_FIELD.includes(key)) {
+        return res.status(400).json({
+          message: `You can't update ${key} field`,
+        });
+      }
+    });
 
     const { userId } = req.params;
-    
+    await User.update(req.body, {
+      where: {
+        id: userId,
+      },
+    });
 
+    const updatedUser = await User.findByPk(userId);
+
+    res.status(200).json({
+      message: "User updated successfully",
+      user: updatedUser,
+    });
+    
   } catch (error) {
     res.status(500).json({
       message: "Something went wrong",
@@ -146,24 +156,23 @@ exports.deleteUser = async (req, res) => {
     const user = await User.findByPk(userId);
     if (!user) {
       return res.status(404).json({
-        message: "User not found"
-      })
+        message: "User not found",
+      });
     }
 
     await User.destroy({
       where: {
         id: userId,
-      }
+      },
     });
 
     res.status(200).json({
-      message: `User(${userId}) deleted successfully`
-    })
-
+      message: `User(${userId}) deleted successfully`,
+    });
   } catch (error) {
     res.status(500).json({
       message: "Something went wrong",
-      error
-    })
+      error,
+    });
   }
 };
