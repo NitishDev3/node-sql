@@ -119,8 +119,26 @@ exports.createUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
+    const ALLOWED_FIELD = ['name', 'email', 'password', 'role'];
+    Object.keys(req.body).forEach((key)=>{
+        if(!ALLOWED_FIELD.includes(key)){
+            return res.status(400).json({
+                message: `You can't update ${key} field`,
+                });
+        }
+    })
+
+
     const { userId } = req.params;
-    
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const newUser = await user.update(req.body);
 
   } catch (error) {
     res.status(500).json({
