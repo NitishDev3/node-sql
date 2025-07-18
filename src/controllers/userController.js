@@ -1,4 +1,4 @@
-const User = require("../models/userModel");
+const { User } = require("../models");
 const bcrypt = require("bcrypt");
 
 exports.listUsers = async (req, res) => {
@@ -130,15 +130,7 @@ exports.updateUser = async (req, res) => {
 
 
     const { userId } = req.params;
-    const user = await User.findByPk(userId);
-
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
-    }
-
-    const newUser = await user.update(req.body);
+    
 
   } catch (error) {
     res.status(500).json({
@@ -148,4 +140,30 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-exports.deleteUser = async () => {};
+exports.deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found"
+      })
+    }
+
+    await User.destroy({
+      where: {
+        id: userId,
+      }
+    });
+
+    res.status(200).json({
+      message: `User(${userId}) deleted successfully`
+    })
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Something went wrong",
+      error
+    })
+  }
+};
